@@ -1,85 +1,125 @@
 let no_of_floors = 5;
 let no_of_lifts = 3;
 let lifts = []
+let FLOOR_HEIGHT = 125; //in px
 
-function create_floors() {
-    for(let i=no_of_floors-1;i>=0; i--) {
-        let floor = document.createElement("div");
-        floor.className = 'floor';
-        floor.id = `floor-${i}`;
+class SimulateBuilding
+{
+create_floors() {
+  for(let i=no_of_floors-1;i>=0; i--) {
+    let floor = document.createElement("div");
+    floor.className = 'floor';
+    floor.id = `floor-${i}`;
       
-      let floor_controls = document.createElement('div');
-      floor_controls.className = 'floor-controls'
-        floor_heading = document.createElement('h3');
-        floor_heading.className = 'lift-floor-number';
-        floor_heading.innerHTML= i==0? "Ground Floor" : `Floor ${i}`;
-        floor_controls.append(floor_heading)
+    let floor_controls = document.createElement('div');
+    floor_controls.className = 'floor-controls'
+    let floor_heading = document.createElement('h3');
+    floor_heading.className = 'lift-floor-number';
+    floor_heading.innerHTML= i==0? "Ground Floor" : `Floor ${i}`;
+    floor_controls.append(floor_heading)
       
-      let up_btn = document.createElement('button');
-      up_btn.classList.add('btn','up-btn');
-      up_btn.innerHTML = 'Up';
-      floor_controls.append(up_btn);
+    let up_btn = document.createElement('button');
+    up_btn.classList.add('floor-btn','up-btn');
+    up_btn.id = `up-btn-${i}`;
+    up_btn.innerHTML = 'Up';
+    floor_controls.append(up_btn);
       
-      let down_btn = document.createElement('button');
-      down_btn.classList.add('btn','down-btn');
-      down_btn.innerHTML = 'Down';
-      floor_controls.append(down_btn);
-      
-      
-      let floor_container = document.getElementById("floor-container");
+    let down_btn = document.createElement('button');
+    down_btn.classList.add('floor-btn','down-btn');
+    down_btn.id = `down-btn-${i}`;
+    down_btn.innerHTML = 'Down';
+    floor_controls.append(down_btn);
+    
+    let floor_container = document.getElementById("floor-container");
        
- 			let lift_container = document.createElement('div');
-  		lift_container.className='lift-container';
-  		lift_container.id=`lift-container-${i}`;
+ 		let lift_container = document.createElement('div');
+  	lift_container.className='lift-container';
+  	lift_container.id=`lift-container-${i}`;
        
-      floor.append(floor_controls);
-      floor.append(lift_container);
-      floor_container.append(floor);
-    }
+    floor.append(floor_controls);
+    floor.append(lift_container);
+    floor_container.append(floor);
+  }
 }
 
-function create_lifts() {
-         let lift_container = document.getElementById('lift-container-0');
+create_lifts() {
+  let lift_container = document.getElementById('lift-container-0');
   for(let i=0;i<no_of_lifts;i++) {
         
-        let lift_struct = document.createElement('div');
-        lift_struct.className = "lift";
-        lift_struct.id = "lift-" + (i+1);
+    let lift_struct = document.createElement('div');
+    lift_struct.className = "lift";
+    lift_struct.id = `lift-${i}`;
 
-        left_door = document.createElement('div');
-        left_door.classList.add("lift-door","l-left");
-        lift_struct.append(left_door);
-        right_door = document.createElement('div');
-        right_door.classList.add("lift-door","l-right");
-        lift_struct.append(right_door);
+    let left_door = document.createElement('div');
+    left_door.classList.add("lift-door","l-left");
+    left_door.id = `left-door-${i}`;
+    lift_struct.append(left_door);
+    let right_door = document.createElement('div');
+    right_door.classList.add("lift-door","l-right");
+    right_door.id = `right-door-${i}`;	
+    lift_struct.append(right_door);
       
-        lift_struct.style.left = `${10 + 20* lift_struct.id }px`;
+    lift_struct.style.left = `${10 + 20* lift_struct.id }px`;
         
-        let lift = {
-          'id':i,
-          'current_floor':0,
-          'is_moving':false
-        };
-      lift_container.append(lift_struct);
-        lifts.push(lift);
+    let lift = {
+      'current_floor':0,
+      'is_moving':false
+    };
+    
+    lift_container.append(lift_struct);
+    lifts.push(lift);
+  }
+}
+}
+class LiftController{
+ lift_chooser(destination_floor) {
+  let shortest_distance = Infinity;
+  let closest_lift_id;
+    for(let i = lifts.length - 1 ; i >= 0 ; i--) {
+    let current_distance = Math.abs(lifts[i].current_floor - destination_floor);
+    if((!lifts[i].is_moving) && (current_distance < shortest_distance))
+      {
+      console.log(current_distance, i)
+      closest_lift_id = i;
+      }
     }
+    return closest_lift_id;
+  }
+
+move_lift(destination_floor) {
+  let closest_lift_id = this.lift_chooser(destination_floor);
+	var closest_lift_struct = document.getElementById(`lift-${closest_lift_id}`);
+  let current_floor = lifts[closest_lift_id].current_floor;
+  
+  let distance = -1 * FLOOR_HEIGHT * (destination_floor);
+  let time_traversed = 2 * Math.abs(destination_floor - current_floor);
+  
+  lifts[closest_lift_id].is_moving = true;
+  lifts[closest_lift_id].current_floor = destination_floor;
+  let traversing = setTimeout(() => {
+  lifts[closest_lift_id].is_moving = false;
+  }, time_traversed * 1000);
+  closest_lift_struct.style.transform = `translateY(${distance}px)`;
+  closest_lift_struct.style.transitionDuration = `${time_traversed}s`;
 }
 
-class LiftController {
-  liftChooser() {
-    for(let lift in lifts)
-    if(!lift.is_moving)
-      return lift.id;
-  }
-  moveUp() {
-    document.get
-  }
 }
-
 
 function main() {
-  create_floors();
-  create_lifts();
+  var building_creator = new SimulateBuilding();
+  building_creator.create_floors();
+  building_creator.create_lifts();
+  var lift_controller = new LiftController();
+  floor_btns = document.querySelectorAll('.floor-btn');
+  for(var i=0;i<floor_btns.length;i++)
+  {
+    floor_btns[i].addEventListener('click',(i) => {
+    var temp = i.target.getAttribute('id')
+    var destination_floor_id = temp.charAt(temp.length-1)
+    
+    lift_controller.move_lift(destination_floor_id)
+    });
+  }
 }
 
-main();
+main();  
