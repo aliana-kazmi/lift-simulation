@@ -1,0 +1,50 @@
+* {
+    box-sizing:border-box;
+  }
+  h3 {
+    margin: 0;
+    width:max-content;
+  }
+  .floor-container {
+    height: fit-content;
+    display: flex;
+    width:fit-content;
+    flex-direction: column;
+  }
+  .floor {
+    height:125px;
+    width:100%;
+    border-bottom: 3px solid black;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+  }
+  .floor-controls {
+    display:flex;
+    width:100px;
+    flex-direction: column;
+    margin:15px 25px;
+  }
+  .btn {
+    width: 5rem;
+    margin: 7px;
+  }
+  .lift-container {
+    height: 125px;
+    display: flex;
+    flex-direction: row;
+  /*   border: 3px solid blue; */
+    width: 80vw;
+  }
+  .lift {
+    width: 70px;
+    display:flex;
+    height:122px;
+    background-color: red;
+    margin-left: 15px;
+  }
+  .lift-door {
+  width: 50%;
+  height: 122px;
+  border: 3px solid pink;
+  }
