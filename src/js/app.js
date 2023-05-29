@@ -75,11 +75,12 @@ class LiftController{
  lift_chooser(destination_floor) {
   let shortest_distance = Infinity;
   let closest_lift_id;
-    for(let i = lifts.length - 1 ; i >= 0 ; i--) {
+    for(let i = 0; i < lifts.length; i++) {
     let current_distance = Math.abs(lifts[i].current_floor - destination_floor);
     if((!lifts[i].is_moving) && (current_distance < shortest_distance))
       {
-      console.log(current_distance, i)
+      console.log(current_distance, shortest_distance, i)
+      shortest_distance = current_distance
       closest_lift_id = i;
       }
     }
