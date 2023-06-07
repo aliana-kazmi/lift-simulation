@@ -1,5 +1,5 @@
 let no_of_floors = 5;
-let no_of_lifts = 3;
+let no_of_lifts = 1;
 let lifts = []
 let FLOOR_HEIGHT = 125; //in px
 
@@ -59,7 +59,7 @@ create_lifts() {
     right_door.id = `right-door-${i}`;	
     lift_struct.append(right_door);
       
-    lift_struct.style.left = `${10 + 20* lift_struct.id }px`;
+    lift_struct.style.left = `${10 + 35 + 20* lift_struct.id }px`;
         
     let lift = {
       'current_floor':0,
@@ -79,7 +79,6 @@ class LiftController{
     let current_distance = Math.abs(lifts[i].current_floor - destination_floor);
     if((!lifts[i].is_moving) && (current_distance < shortest_distance))
       {
-      console.log(current_distance, shortest_distance, i)
       shortest_distance = current_distance
       closest_lift_id = i;
       }
@@ -87,7 +86,7 @@ class LiftController{
     return closest_lift_id;
   }
 
-move_lift(destination_floor) {
+lift_movement(destination_floor) {
   let closest_lift_id = this.lift_chooser(destination_floor);
 	var closest_lift_struct = document.getElementById(`lift-${closest_lift_id}`);
   let current_floor = lifts[closest_lift_id].current_floor;
@@ -98,15 +97,63 @@ move_lift(destination_floor) {
   lifts[closest_lift_id].is_moving = true;
   lifts[closest_lift_id].current_floor = destination_floor;
   let traversing = setTimeout(() => {
+  let left_door = document.getElementById(`left-door-${closest_lift_id}`)
+  left_door.removeEventListener("transitionend", close_door);
   lifts[closest_lift_id].is_moving = false;
-  }, time_traversed * 1000);
+  }, (time_traversed + 2.5) * 1000);
+
   closest_lift_struct.style.transform = `translateY(${distance}px)`;
   closest_lift_struct.style.transitionDuration = `${time_traversed}s`;
+  closest_lift_struct.addEventListener('transitionend',door_animation)
+  return;
+}
+}
+function door_animation(e) {
+  let closest_lift_id = e.target.id.charAt(e.target.id.length-1)
+	var closest_lift_struct = document.getElementById(`lift-${closest_lift_id}`);
+  closest_lift_struct.removeEventListener("transitionend", door_animation);
+  let left_door = document.getElementById(`left-door-${closest_lift_id}`)
+  let right_door = document.getElementById(`right-door-${closest_lift_id}`)
+  
+  left_door.style.transform = `translateX(0%)`;
+  right_door.style.transform = `translateX(0%)`;
+
+  left_door.removeEventListener("transitionend", door_animation);
+  right_door.removeEventListener("transitionend", door_animation);
+  left_door.addEventListener("transitionend", open_door)
+  console.log('door animation executed')
+  return;
+}
+function open_door(e) {
+
+  let closest_lift_id = e.target.id.charAt(e.target.id.length-1)
+  console.log(closest_lift_id)
+  let left_door = document.getElementById(`left-door-${closest_lift_id}`)
+  let right_door = document.getElementById(`right-door-${closest_lift_id}`)
+  left_door.style.transform = `translateX(-100%)`;
+  right_door.style.transform = `translateX(100%)`;
+  left_door.style.animation = `all 1.25s ease-forwards 1.25s`;
+  right_door.style.animation = `all 1.25s ease-forwards 1.25s`;
+  left_door.removeEventListener('transitionend',open_door)
+  left_door.addEventListener('transitionend',close_door)
+  console.log('open door executed')
 }
 
+function close_door(e) {
+
+  let closest_lift_id = e.target.id.charAt(e.target.id.length-1)
+  let left_door = document.getElementById(`left-door-${closest_lift_id}`)
+  let right_door = document.getElementById(`right-door-${closest_lift_id}`)
+  left_door.style.transform = `translateX(0%)`;
+  right_door.style.transform = `translateX(0%)`;
+  left_door.style.transition = `all 1.25s ease-out 1.25s`;
+  right_door.style.transition = `all 1.25s ease-out 1.25s`;
+  
+  left_door.removeEventListener('transitionend',open_door)
+  console.log('close door executed')
 }
 
-function main() {
+main = async () => {
   var building_creator = new SimulateBuilding();
   building_creator.create_floors();
   building_creator.create_lifts();
@@ -117,8 +164,7 @@ function main() {
     floor_btns[i].addEventListener('click',(i) => {
     var temp = i.target.getAttribute('id')
     var destination_floor_id = temp.charAt(temp.length-1)
-    
-    lift_controller.move_lift(destination_floor_id)
+    lift_controller.lift_movement(destination_floor_id)
     });
   }
 }
