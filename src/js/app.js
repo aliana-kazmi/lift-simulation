@@ -1,12 +1,27 @@
-let no_of_floors = 5;
-let no_of_lifts = 1;
-let lifts = []
-let FLOOR_HEIGHT = 125; //in px
 
+let lifts = []
+let FLOOR_HEIGHT = 125;//in px
+
+let gen_btn= document.getElementById("gen-btn")
+
+gen_btn.addEventListener("click",() => {
+  let gen_form = document.getElementById("gen-form")
+  gen_form.style.display = 'none';
+let no_of_floors =  document.getElementById("no-of-floors").value;
+let no_of_lifts = document.getElementById("no-of-lifts").value;
+console.log(no_of_floors);
+console.log(no_of_lifts);
+main(no_of_floors,no_of_lifts);  
+
+})
 class SimulateBuilding
 {
+  constructor(no_of_floors,no_of_lifts) {
+    this.no_of_floors = no_of_floors
+    this.no_of_lifts = no_of_lifts
+  }
 create_floors() {
-  for(let i=no_of_floors-1;i>=0; i--) {
+  for(let i=this.no_of_floors-1;i>=0; i--) {
     let floor = document.createElement("div");
     floor.className = 'floor';
     floor.id = `floor-${i}`;
@@ -44,7 +59,7 @@ create_floors() {
 
 create_lifts() {
   let lift_container = document.getElementById('lift-container-0');
-  for(let i=0;i<no_of_lifts;i++) {
+  for(let i=0;i<this.no_of_lifts;i++) {
         
     let lift_struct = document.createElement('div');
     lift_struct.className = "lift";
@@ -96,12 +111,16 @@ lift_movement(destination_floor) {
   
   lifts[closest_lift_id].is_moving = true;
   lifts[closest_lift_id].current_floor = destination_floor;
-  let traversing = setTimeout(() => {
-  let left_door = document.getElementById(`left-door-${closest_lift_id}`)
-  left_door.removeEventListener("transitionend", close_door);
+  let traversing = setTimeout((e) => {
+  // let left_door = document.getElementById(`left-door-${closest_lift_id}`)
+  // left_door.removeEventListener("transitionend", close_door);
   lifts[closest_lift_id].is_moving = false;
-  }, (time_traversed + 2.5) * 1000);
-
+  console.log('lift reached the floor');
+  open_door(closest_lift_id);
+  }, (time_traversed) * 1000);
+let p = setTimeout((e) => {
+close_door(closest_lift_id)
+}, (time_traversed+2.5)*1000);
   closest_lift_struct.style.transform = `translateY(${distance}px)`;
   closest_lift_struct.style.transitionDuration = `${time_traversed}s`;
   closest_lift_struct.addEventListener('transitionend',door_animation)
@@ -109,39 +128,39 @@ lift_movement(destination_floor) {
 }
 }
 function door_animation(e) {
-  let closest_lift_id = e.target.id.charAt(e.target.id.length-1)
-	var closest_lift_struct = document.getElementById(`lift-${closest_lift_id}`);
-  closest_lift_struct.removeEventListener("transitionend", door_animation);
-  let left_door = document.getElementById(`left-door-${closest_lift_id}`)
-  let right_door = document.getElementById(`right-door-${closest_lift_id}`)
+  // let closest_lift_id = e.target.id.charAt(e.target.id.length-1)
+	// var closest_lift_struct = document.getElementById(`lift-${closest_lift_id}`);
+  // closest_lift_struct.removeEventListener("transitionend", door_animation);
+  // let left_door = document.getElementById(`left-door-${closest_lift_id}`)
+  // let right_door = document.getElementById(`right-door-${closest_lift_id}`)
   
-  left_door.style.transform = `translateX(0%)`;
-  right_door.style.transform = `translateX(0%)`;
+  // left_door.style.transform = `translateX(0%)`;
+  // right_door.style.transform = `translateX(0%)`;
 
-  left_door.removeEventListener("transitionend", door_animation);
-  right_door.removeEventListener("transitionend", door_animation);
-  left_door.addEventListener("transitionend", open_door)
-  console.log('door animation executed')
-  return;
+  // left_door.removeEventListener("transitionend", door_animation);
+  // right_door.removeEventListener("transitionend", door_animation);
+  // left_door.addEventListener("transitionend", open_door)
+  // console.log('door animation executed')
+  // return;
 }
-function open_door(e) {
+function open_door(closest_lift_id) {
 
-  let closest_lift_id = e.target.id.charAt(e.target.id.length-1)
-  console.log(closest_lift_id)
+  // let closest_lift_id = e.target.id.charAt(e.target.id.length-1)
+  // console.log(closest_lift_id)
   let left_door = document.getElementById(`left-door-${closest_lift_id}`)
   let right_door = document.getElementById(`right-door-${closest_lift_id}`)
   left_door.style.transform = `translateX(-100%)`;
   right_door.style.transform = `translateX(100%)`;
   left_door.style.animation = `all 1.25s ease-forwards 1.25s`;
   right_door.style.animation = `all 1.25s ease-forwards 1.25s`;
-  left_door.removeEventListener('transitionend',open_door)
-  left_door.addEventListener('transitionend',close_door)
+  // left_door.removeEventListener('transitionend',open_door)
   console.log('open door executed')
+  // left_door.addEventListener('transitionend',close_door)
 }
 
-function close_door(e) {
+function close_door(closest_lift_id) {
 
-  let closest_lift_id = e.target.id.charAt(e.target.id.length-1)
+  // let closest_lift_id = e.target.id.charAt(e.target.id.length-1)
   let left_door = document.getElementById(`left-door-${closest_lift_id}`)
   let right_door = document.getElementById(`right-door-${closest_lift_id}`)
   left_door.style.transform = `translateX(0%)`;
@@ -149,12 +168,12 @@ function close_door(e) {
   left_door.style.transition = `all 1.25s ease-out 1.25s`;
   right_door.style.transition = `all 1.25s ease-out 1.25s`;
   
-  left_door.removeEventListener('transitionend',open_door)
+  // left_door.removeEventListener('transitionend',open_door)
   console.log('close door executed')
 }
 
-main = async () => {
-  var building_creator = new SimulateBuilding();
+main = async (no_of_floors,no_of_lifts) => {
+  var building_creator = new SimulateBuilding(no_of_floors,no_of_lifts);
   building_creator.create_floors();
   building_creator.create_lifts();
   var lift_controller = new LiftController();
@@ -169,4 +188,3 @@ main = async () => {
   }
 }
 
-main();  
